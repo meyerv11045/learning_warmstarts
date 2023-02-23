@@ -1,6 +1,8 @@
 import torch.nn as nn
+
+
 class FFNet(nn.Module):
-    """ Simple feed-forward neural network in PyTorch
+    """Simple feed-forward neural network in PyTorch
         Consists of linear layers with a single activation function
 
     Attributes:
@@ -9,36 +11,35 @@ class FFNet(nn.Module):
     """
 
     def __init__(self, shape, activation):
-        """ Constructor for FFNet
-            
+        """Constructor for FFNet
+
         Arguments:
             shape: list of number of nodes in each layer
             activation: pytorch function specifying the activation function for all the layers
         """
         super(FFNet, self).__init__()
-        self.shape = shape 
-        self.layers =  []
-        self.activation = activation 
+        self.shape = shape
+        self.layers = []
+        self.activation = activation
 
         for i in range(len(shape) - 1):
             layer = nn.Linear(shape[i], shape[i + 1])
-            
+
             if self.activation == nn.functional.relu:
                 nn.init.kaiming_normal_(layer.weight)
             else:
-                nn.init.xavier_normal_(layer.weight) 
-                       
+                nn.init.xavier_normal_(layer.weight)
+
             self.layers.append(layer)
 
         self.layers = nn.ModuleList(self.layers)
 
     def forward(self, x):
-        """ Forward Pass through FFNet
-        """
+        """Forward Pass through FFNet"""
 
         for i in range(len(self.layers) - 1):
             x = self.layers[i](x)
             x = self.activation(x)
 
-        # no activation function on final layer    
+        # no activation function on final layer
         return self.layers[-1](x)
