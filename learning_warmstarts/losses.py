@@ -1,3 +1,4 @@
+import logging
 import torch
 import torch.nn as nn
 
@@ -5,13 +6,7 @@ from learning_warmstarts.dataset.opt import setup_problem
 
 
 class IpoptLoss(nn.Module):
-    """Loss function that uses IPOPT online to generate partially solved trajectory targets
-    based on the network's prediction
-    """
-
     def __init__(self, max_iters, cfg):
-        # max_iters: 25 worked well in achieving results that beat MSE with full trajectory target
-
         super(IpoptLoss, self).__init__()
 
         self.problem = setup_problem(cfg)
@@ -19,16 +14,17 @@ class IpoptLoss(nn.Module):
             "print_time": False,
             "ipopt": {"max_iter": max_iters, "print_level": 0},
         }
-
+        self.n_obsts = cfg.n_obstacles
         self.problem.solver("ipopt", options)
 
         self.mse = nn.MSELoss(reduction="mean")
+        logging.info("ipopt loss initialized succesfully")
 
     def forward(self, predictions, inputs):
         predictions_np = predictions.detach().numpy()
         inputs = inputs.numpy()
 
-        self.problem.set_value(self.problem.p[:-1], inputs)
+        self.problem.set_value(self.problem.p[4 : 4 + 3 * self.n_obsts], inputs)
         self.problem.set_initial(self.problem.x, predictions_np)
 
         solution = self.problem.solve_limited()
