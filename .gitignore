@@ -1,0 +1,16 @@
+.python-version
+
+# Environment
+.DS_STORE
+env/
+__pycache__/
+*.pyc
+
+# WANDB
+artifacts/
+*.pth
+*.pt
+wandb/
+data/
+results/
+learning_warmstarts.egg-info

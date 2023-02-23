@@ -1,0 +1,5 @@
+casadi
+matplotlib
+numpy
+torch
+wandb
